@@ -2,13 +2,12 @@ from multiprocessing import cpu_count
 from os import makedirs
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, Future
-from argparse import ArgumentParser
 from functools import partial
 from typing import Callable, List
 import sys
 import traceback
 
-from .noise_suppressor import NoiseSuppressor
+from .segmenter import Segmenter
 
 def path_iterator(paths, output_path, paths_to_ignore):
     for search_path in paths:
@@ -41,7 +40,7 @@ def default_callback(file_path, future_result):
 def process_directory(
     in_dirs: List[str], 
     out_dir: str, 
-    noise_suppressor: NoiseSuppressor, 
+    noise_suppressor: Segmenter,
     on_processed_callback: Callable[[str, Future], None] = default_callback, 
     paths_to_ignore: list = [],
 ) -> List[Future]:
