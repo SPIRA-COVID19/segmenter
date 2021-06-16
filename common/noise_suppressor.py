@@ -2,20 +2,17 @@ import numpy as np
 import soundfile as sf
 import librosa
 
-from .noisereduce import reduce_noise
 from .textgrid_writer import audio_to_textgrid, write_textgrid_to_file
 
 
-class NoiseSuppressor:
+class Segmenter:
 
     __DEFAULTS = {
         'noise_threshold_db': None,
         'noise_threshold_pct': 0.27,
         'bool_filter_window_size': None,
         'std_threshold': 1.5,
-        'suppresion_pct': 1.0,
-        'noise_suppress': True,
-        'generate_textgrid': False
+        'generate_textgrid': True
     }
     
     def __init__(self, **kwargs):
@@ -41,52 +38,12 @@ class NoiseSuppressor:
                 The default considers only noise sections bigger than 0.2 seconds in the
                 audio. Ranges from 1 to the amounts of sample in the audio (sample rate * seconds).
 
-            std_threshold (1.5):
-                After construction of the mean spectrum of the noise, this parameter
-                dictates how far from the mean, in sigmas, we need to be to consider
-                the frequency as signal. Ranges from 0 to Infinity.
-
-            suppression_pct (1.0):
-                How much of the final audio should be supressed, versus how much of the audio
-                should just remain the dry signal from the input. Ranges from 0 to 1, where
-                0 returns the original audio and 1 returns just the suppressed audio.
-
-
             Alongside these parameters, you have the following options when processing an audio:
 
-            noise_suppress (True):
-                Choose whether to suppress noise or to just cut preliminary noise from the
-                beginning and ending of an audio.
-
-            generate_textgrid (False):
+            generate_textgrid (True):
                 Generate a Praat textgrid containing sections where we detected we have signal/noise.
         """
         self.__dict__ = { **self.__DEFAULTS, **kwargs }
-
-    def noise_reduce_signal(self, y, sr):
-        # We can only work with audios longer than 1 second, because
-        # we will throw away at least 0.5s off of each side
-        if len(y) <= sr * 1:
-            return y, np.zeros(len(y))
-
-        inoise, _ = self.noise_sel(y, sr)
-        noise = y[inoise]
-
-        reduced_y, ε = reduce_noise(audio_clip=y,
-                                    noise_clip=noise,
-                                    n_grad_freq=4,
-                                    n_grad_time=8,
-                                    n_std_thresh=self.std_threshold,
-                                    prop_decrease=self.suppresion_pct,
-                                    verbose=False)
-
-        reduced_y = self.__cut_noise_from_edges(reduced_y, inoise)
-
-        # Normalize to [-1, 1]
-        reduced_y /= max(max(y), -min(y), 1)
-        ε /= max(max(ε), -min(ε), 1)
-
-        return reduced_y, ε
 
     def just_crop_ends(self, y, sr):
         if len(y) <= sr * 1:
@@ -98,13 +55,12 @@ class NoiseSuppressor:
     def process_signal_file(self, filename, save_to):
         y, sr = librosa.load(filename, sr=44100)
         y = self.__remove_dc(y)
-        if self.noise_suppress:
-            reduced_y, _ = self.noise_reduce_signal(y, sr)
-        else:
-            reduced_y = self.just_crop_ends(y, sr)
+
+        # FIXME this crops the endings before running the textgrid segmentation
+        reduced_y = self.just_crop_ends(y, sr)
 
         if self.generate_textgrid:
-            isnoise, isnoise_pre = self.noise_sel(reduced_y, sr)
+            isnoise, isnoise_pre = self.noise_sel(y, sr)
 
             inoise = np.where(isnoise == True)[0]
             inoise_pre = np.where(isnoise_pre == True)[0]
