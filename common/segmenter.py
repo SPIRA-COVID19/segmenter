@@ -60,7 +60,7 @@ class Segmenter:
         reduced_y = self.just_crop_ends(y, sr)
 
         if self.generate_textgrid:
-            isnoise, isnoise_pre = self.noise_sel(y, sr)
+            isnoise, isnoise_pre = self.noise_sel(reduced_y, sr)
 
             inoise = np.where(isnoise == True)[0]
             inoise_pre = np.where(isnoise_pre == True)[0]

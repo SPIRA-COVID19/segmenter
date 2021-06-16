@@ -1,4 +1,4 @@
-from common import NoiseSuppressor, process_directory
+from common import Segmenter, process_directory
 
 def main():
     from argparse import ArgumentParser
@@ -19,9 +19,9 @@ def main():
     args = parser.parse_args()
 
     output_path = args.dest_dir.rstrip('/')
-    noiseprocessor = NoiseSuppressor(generate_textgrid=args.generate_textgrid)
+    segmenter = Segmenter(generate_textgrid=args.generate_textgrid)
 
-    process_directory(args.source_dir, output_path, noiseprocessor)
+    process_directory(args.source_dir, output_path, segmenter)
     return 0
 
 if __name__ == '__main__':

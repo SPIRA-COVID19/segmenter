@@ -40,7 +40,7 @@ def default_callback(file_path, future_result):
 def process_directory(
     in_dirs: List[str], 
     out_dir: str, 
-    noise_suppressor: Segmenter,
+    segmenter: Segmenter,
     on_processed_callback: Callable[[str, Future], None] = default_callback, 
     paths_to_ignore: list = [],
 ) -> List[Future]:
@@ -56,8 +56,8 @@ def process_directory(
             as the input directory, meaning that audios that are contained in subdirectories
             in the input will be contained in subdirectories with the same name in the output.
         
-        noise_suppressor:
-            an instance of the NoiseSuppressor class that contains how to process the audios.
+        segmenter:
+            an instance of the Segmenter class that contains how to process the audios.
 
         on_processed_callback:
             a function that receives two parameters: (file_path: string, future_result: concurrent.future.Future).
@@ -67,7 +67,7 @@ def process_directory(
         paths_to_ignore:
             list of paths or substrings to ignore when crawling to a directory. Example: ['log', '.avi', '.gitignore']
     """
-    return process_directory_raw(in_dirs, out_dir, noise_suppressor.process_signal_file, on_processed_callback, paths_to_ignore)
+    return process_directory_raw(in_dirs, out_dir, segmenter.process_signal_file, on_processed_callback, paths_to_ignore)
 
 def process_directory_raw(
     in_dirs: List[str], 
