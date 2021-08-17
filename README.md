@@ -12,19 +12,19 @@ docker run -it --rm -v <INPUT_DATA>:/data:ro -v <OUTPUT_DATA>:/out segmenter /ou
 
 #### (recommended) Via python's virtual environment
 
-1. Make sure pipenv is installed.
+1. Make sure pipenv is installed:
 ```bash
 pip install pipenv
 ```
 
-2. Clone this repository.
+2. Clone this repository:
 ```bash
 git clone https://github.com/SPIRA-COVID19/segmenter.git
 cd segmenter/
 pipenv sync
 ```
 
-3. Run main.
+3. Run main:
 ```bash
 pipenv run python main.py --help
 ```
