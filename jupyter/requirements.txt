@@ -1,0 +1,12 @@
+# jupyter stuff
+jupyter
+rise
+# numeric stuff
+matplotlib
+numpy
+pandas
+scipy
+# audiostuff
+librosa
+soundfile
+textgrid
