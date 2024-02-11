@@ -8,10 +8,9 @@ from .textgrid_writer import audio_to_textgrid, write_textgrid_to_file
 class Segmenter:
 
     __DEFAULTS = {
-        'noise_threshold_db': None,
-        'noise_threshold_pct': 0.27,
+        'noise_threshold_db': 12,
+        'noise_threshold_pct': None,
         'bool_filter_window_size': None,
-        'std_threshold': 1.5,
         'generate_textgrid': True
     }
     
