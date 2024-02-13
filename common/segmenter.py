@@ -76,7 +76,7 @@ class Segmenter:
         # Some borders of the convolution may have zeroes on them, and that
         # makes taking log10 especially hard. We'll ignore them and leave them zero.
         convolution = np.convolve(y2, window)
-        edB = 10 * np.log10(convolution, where=convolution > 0)[window_size - 1:]
+        edB = 10 * np.log10(convolution, where=convolution > 0)[window_size//2:-window_size//2+1]
 
         # we throw away the initial and ending 0.5s, because the sliding windows
         # are not correct in the initial/final borders.
