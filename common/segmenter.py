@@ -54,7 +54,7 @@ class Segmenter:
             inoise = np.where(isnoise == True)[0]
             inoise_pre = np.where(isnoise_pre == True)[0]
 
-            tg = audio_to_textgrid(y, sr, inoise, inoise_pre)
+            tg = audio_to_textgrid(y, sr, inoise)
             write_textgrid_to_file(f'{save_to}.TextGrid', save_to, tg)
 
         return filename
