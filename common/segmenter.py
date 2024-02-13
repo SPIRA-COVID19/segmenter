@@ -49,10 +49,9 @@ class Segmenter:
         y = self.__remove_dc(y)
 
         if self.generate_textgrid:
-            isnoise, isnoise_pre = self.noise_sel(y, sr)
+            isnoise, _ = self.noise_sel(y, sr)
 
             inoise = np.where(isnoise == True)[0]
-            inoise_pre = np.where(isnoise_pre == True)[0]
 
             tg = audio_to_textgrid(y, sr, inoise)
             write_textgrid_to_file(f'{save_to}.TextGrid', save_to, tg)
