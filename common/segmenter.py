@@ -44,30 +44,19 @@ class Segmenter:
         """
         self.__dict__ = { **self.__DEFAULTS, **kwargs }
 
-    def just_crop_ends(self, y, sr):
-        if len(y) <= sr * 1:
-            return y
-
-        inoise, _ = self.noise_sel(y, sr)
-        return self.__cut_noise_from_edges(y, inoise)
-
     def process_signal_file(self, filename, save_to):
         y, sr = librosa.load(filename, sr=44100)
         y = self.__remove_dc(y)
 
-        # FIXME this crops the endings before running the textgrid segmentation
-        reduced_y = self.just_crop_ends(y, sr)
-
         if self.generate_textgrid:
-            isnoise, isnoise_pre = self.noise_sel(reduced_y, sr)
+            isnoise, isnoise_pre = self.noise_sel(y, sr)
 
             inoise = np.where(isnoise == True)[0]
             inoise_pre = np.where(isnoise_pre == True)[0]
 
-            tg = audio_to_textgrid(reduced_y, sr, inoise, inoise_pre)
+            tg = audio_to_textgrid(y, sr, inoise, inoise_pre)
             write_textgrid_to_file(f'{save_to}.TextGrid', save_to, tg)
 
-        sf.write(save_to, reduced_y, sr)
         return filename
 
     def __remove_dc(self, y):
