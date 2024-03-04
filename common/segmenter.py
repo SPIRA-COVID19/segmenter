@@ -54,7 +54,8 @@ class Segmenter:
         if self.generate_textgrid:
             isnoise, _ = self.noise_sel(y, sr)
 
-            inoise = np.where(isnoise == True)[0]
+            inoise = np.where(isnoise == True)
+            inoise = inoise[0] if len(inoise) > 0 else []
 
             tg = audio_to_textgrid(y, sr, inoise)
             write_textgrid_to_file(f'{save_to}.TextGrid', save_to, tg)
@@ -103,6 +104,7 @@ class Segmenter:
             Applies a majority filter boolean vectors
             over windows of size 2 * window_size + 1 
         """
+        y_copy = y.copy()
         y_out = y.copy()
 
         # we initalize the sentry as N True values. This makes the edges of the sound be considered as
@@ -124,7 +126,7 @@ class Segmenter:
             y_out[i] = n_true > n_false
 
             if i >= window_size:
-                to_remove = y_out[i - window_size]
+                to_remove = y_copy[i - window_size]
             else:  # remove one "True" that we padded.
                 to_remove = y_pad[i]
 
@@ -150,6 +152,7 @@ class Segmenter:
         else:
             noise_threshold = noise_floor + self.noise_threshold_db
 
+        is_noise_pre = np.ones(len(edB)) * (edB < noise_threshold)
 
         window_size = self.bool_filter_window_duration * sr
 
