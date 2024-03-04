@@ -135,18 +135,7 @@ class Segmenter:
                 n_false += 1
 
         return y_out
-    
-    def __cut_noise_from_edges(self, y, is_noise):
-        """
-            Cuts all the noise from the beginning and end of the signal.
-            this is made using the indices of inoise.
-        """
-        # noise = True, signal = False. It returns rows and columns, we just want the rows.
-        isignal, *_ = np.where(is_noise == False)
-        first_signal, last_signal = isignal[0], isignal[-1]
 
-        return y[first_signal:last_signal]
-    
     def noise_sel(self, y, sr, noise_threshold: float = None):
         edB, edBmin, edBmax = self.__sliding_window_energy(y, sr)
 
