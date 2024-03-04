@@ -22,14 +22,18 @@ def __get_breakpoints(inoise):
 
 def add_tier(tg, y, sr, inoise, name, signal_name, non_signal_name):
     tier = textgrid.IntervalTier(name=name, maxTime=len(y)/sr)
-    intervals = __separate_intervals(y, inoise)
-    for is_signal, imin, imax in intervals:
-        time_min, time_max = imin / sr, imax / sr
-        if time_min == time_max:
-            continue
 
-        mark = signal_name if is_signal else non_signal_name
-        tier.addInterval(textgrid.Interval(minTime=time_min, maxTime=time_max, mark=mark))
+    if len(inoise) > 0:
+        intervals = __separate_intervals(y, inoise)
+        for is_signal, imin, imax in intervals:
+            time_min, time_max = imin / sr, imax / sr
+            if time_min == time_max:
+                continue
+
+            mark = signal_name if is_signal else non_signal_name
+            tier.addInterval(textgrid.Interval(minTime=time_min, maxTime=time_max, mark=mark))
+    else:
+        tier.addInterval(textgrid.Interval(minTime=0, maxTime=len(y)/sr, mark='X'))
     
     tg.append(tier)
 
