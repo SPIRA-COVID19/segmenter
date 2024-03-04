@@ -32,7 +32,6 @@ def path_iterator(paths, output_path, paths_to_ignore):
 
 def default_callback(file_path, future_result):
     if future_result.exception():
-        print(''.join(traceback.format_exception(etype=type(future_result.exception()), value=future_result.exception(), tb=future_result.exception().__traceback__)))
         print(f'error processing {file_path}, exception={future_result.exception()}', file=sys.stderr)
     else:
         print(f'processed {future_result.result()}', file=sys.stderr)
