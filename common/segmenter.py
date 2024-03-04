@@ -8,10 +8,13 @@ from .textgrid_writer import audio_to_textgrid, write_textgrid_to_file
 class Segmenter:
 
     __DEFAULTS = {
-        'noise_threshold_db': 12,
-        'noise_threshold_pct': None,
-        'bool_filter_window_size': None,
-        'generate_textgrid': True
+        "window_size": 1024,
+        "bool_filter_window_duration": 0.25,
+        "max_dynamic_range": 50,
+        "min_dynamic_range": 40,
+        "noise_threshold_db": None,
+        "noise_threshold_pct": 0.27,
+        "generate_textgrid": True,
     }
     
     def __init__(self, **kwargs):
@@ -69,6 +72,8 @@ class Segmenter:
             Calculates the mean energy (in dB) of the signal in sliding windows.
             returns the mean energy edB and its minimum value.
         """
+        window_size = self.window_size
+
         y2 = np.power(y, 2)
         window = np.ones(window_size) / float(window_size)
 
@@ -88,7 +93,7 @@ class Segmenter:
         # of noise gating on the recording, leaving a lot of
         # zeroes. We now allow up to 90dB variation between
         # complete silence and the loudest noise in the audio.
-        edBmin = max(np.min(edB[imin:-imin]), edBmax - 90)
+        edBmin = max(np.min(edB[imin:-imin]), edBmax - self.max_dynamic_range)
         edB = np.maximum(edB, edBmin)
 
         return edB, edBmin, edBmax
@@ -139,14 +144,14 @@ class Segmenter:
     def noise_sel(self, y, sr, noise_threshold: float = None):
         edB, edBmin, edBmax = self.__sliding_window_energy(y, sr)
 
-        noise_threshold = self.noise_threshold_db
-        if noise_threshold is None:
-            noise_threshold = self.noise_threshold_pct * (edBmax - edBmin)
+        noise_floor = edBmin
+        if self.noise_threshold_db is None:
+            noise_threshold = noise_floor + self.noise_threshold_pct * (edBmax - edBmin)
+        else:
+            noise_threshold = noise_floor + self.noise_threshold_db
 
-        # select frames with RMS mean next to the minimum level
-        is_noise_pre = edB < edBmin + noise_threshold
 
-        window_size = self.bool_filter_window_size or 0.2 * sr
+        window_size = self.bool_filter_window_duration * sr
 
         is_noise = self.__boolean_majority_filter(is_noise_pre, int(window_size))
 
